@@ -125,7 +125,7 @@ docker logs -f arx-node
 # Or file logs
 tail -f arx-node-logs/arx_log_*.log
 
-# Quick log check command
+# Quick logs check command
 ./view-logs.sh
 ```
 
