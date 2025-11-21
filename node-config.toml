@@ -1,0 +1,14 @@
+[node]
+offset = 6250776  # Your node offset from step 5
+hardware_claim = 0  # Currently not required to specify, just use 0
+starting_epoch = 0
+ending_epoch = 9223372036854775807
+
+[network]
+address = "0.0.0.0" # Bind to all interfaces for reliability behind NAT/firewalls
+
+[solana]
+endpoint_rpc = "https://api.devnet.solana.com"  # Replace with your RPC provider URL or use default https://api.devnet.solana.com
+endpoint_wss = "wss://api.devnet.solana.com"   # Replace with your RPC provider WebSocket URL or use default wss://api.devnet.solana.com
+cluster = "Devnet"
+commitment.commitment = "confirmed"  # or "processed" or "finalized"
