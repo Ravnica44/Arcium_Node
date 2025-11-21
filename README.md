@@ -137,6 +137,16 @@ If the node doesn't start:
 3. Ensure your wallet is funded with sufficient SOL
 4. Check the logs for specific error messages
 
+## Script Permissions
+
+The scripts in this repository need to be executable to function properly. To set the correct permissions, run:
+
+```bash
+chmod +x *.sh *.py
+```
+
+This command sets executable permissions for all shell scripts and Python scripts in the repository.
+
 ## Security
 
 - Keep all keypair files secure and private
