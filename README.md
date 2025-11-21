@@ -11,6 +11,31 @@ Before setting up your node, ensure you have the following installed:
 - Git
 - Python 3 (for wallet creation script)
 
+## Initial Setup
+
+### Setting Script Permissions
+
+The scripts in this repository need to be executable to function properly. To set the correct permissions, run:
+
+```bash
+chmod +x start-arcium-node.sh view-logs.sh create_wallet_from_private_key.py
+```
+
+### Getting Your IP Address
+
+To get your public IP address, you can use one of these commands:
+
+```bash
+# Get your public IP
+curl ifconfig.me
+
+# Alternative command
+curl ipinfo.io/ip
+
+# Get your local IP
+hostname -I
+```
+
 ## Node Configuration
 
 The node is already configured with all necessary keypairs and configuration files:
@@ -136,31 +161,6 @@ If the node doesn't start:
 2. Verify all configuration files are present
 3. Ensure your wallet is funded with sufficient SOL
 4. Check the logs for specific error messages
-
-## Script Permissions
-
-The scripts in this repository need to be executable to function properly. To set the correct permissions, run:
-
-```bash
-chmod +x *.sh *.py
-```
-
-This command sets executable permissions for all shell scripts and Python scripts in the repository.
-
-## Getting Your IP Address
-
-To get your public IP address, you can use one of these commands:
-
-```bash
-# Get your public IP
-curl ifconfig.me
-
-# Alternative command
-curl ipinfo.io/ip
-
-# Get your local IP
-hostname -I
-```
 
 ## Security
 
