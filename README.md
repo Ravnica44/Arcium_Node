@@ -18,7 +18,7 @@ Before setting up your node, ensure you have the following installed:
 The scripts in this repository need to be executable to function properly. To set the correct permissions, run:
 
 ```bash
-chmod +x start-arcium-node.sh view-logs.sh create_wallet_from_private_key.py
+chmod +x start-arcium-node.sh view-logs.sh create_wallet_from_private_key.py generate_wallet.py
 ```
 
 ### Getting Your IP Address
@@ -49,13 +49,19 @@ The node is already configured with all necessary keypairs and configuration fil
 
 ### 1. Create Your Wallet
 
-To run the node with your own wallet, use the provided script:
+You can either generate a new wallet or import an existing private key:
 
+**Option 1: Generate a new wallet (recommended for new users)**
+```bash
+python3 generate_wallet.py
+```
+
+**Option 2: Import an existing private key**
 ```bash
 python3 create_wallet_from_private_key.py <your_private_key>
 ```
 
-This will create a `user-wallet.json` file that you can use to fund your node accounts.
+Both options will create a `user-wallet.json` file that you can use to fund your node accounts.
 
 ### 2. Fund Your Accounts
 
