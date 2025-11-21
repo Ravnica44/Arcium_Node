@@ -147,6 +147,21 @@ chmod +x *.sh *.py
 
 This command sets executable permissions for all shell scripts and Python scripts in the repository.
 
+## Getting Your IP Address
+
+To get your public IP address, you can use one of these commands:
+
+```bash
+# Get your public IP
+curl ifconfig.me
+
+# Alternative command
+curl ipinfo.io/ip
+
+# Get your local IP
+hostname -I
+```
+
 ## Security
 
 - Keep all keypair files secure and private
