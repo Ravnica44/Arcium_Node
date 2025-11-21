@@ -149,15 +149,27 @@ arcium arx-info <node_offset> --rpc-url https://api.devnet.solana.com
 
 Check logs:
 
-```bash
-# Docker logs
-docker logs -f arx-node
+The recommended way to view logs is using the provided script which handles both Docker and file-based logs:
 
-# Or file logs
+```bash
+# View recent logs and follow new entries
+./view-logs.sh
+
+# View log history
+./view-logs.sh --history
+
+# View recent logs without following
+./view-logs.sh --no-follow
+```
+
+Alternative methods (less recommended):
+
+```bash
+# Direct file logs (if not using Docker)
 tail -f arx-node-logs/arx_log_*.log
 
-# Quick logs check command
-./view-logs.sh
+# Docker logs (may be empty as the node writes to files)
+docker logs -f arx-node
 ```
 
 ## Troubleshooting
