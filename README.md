@@ -122,14 +122,19 @@ Initialize your node accounts on the blockchain:
 ```bash
 solana config set --url https://api.devnet.solana.com
 
+# Automatically get your public IP address
+PUBLIC_IP=$(curl -s ifconfig.me)
+
 arcium init-arx-accs \
   --keypair-path node-keypair.json \
   --callback-keypair-path callback-kp.json \
   --peer-keypair-path identity.pem \
   --node-offset $(grep "^offset = " node-config.toml | cut -d '=' -f 2 | tr -d ' ') \
-  --ip-address <your_public_ip> \
+  --ip-address $PUBLIC_IP \
   --rpc-url https://api.devnet.solana.com
 ```
+
+> **Note:** The command above automatically retrieves your public IP address. If you prefer to set a specific IP address, replace `$PUBLIC_IP` with your desired IP. For nodes running behind NAT or on private networks, you may need to specify your public IP manually.
 
 ### 4. Join a Cluster
 
@@ -137,10 +142,14 @@ You can either join an existing cluster or create your own:
 
 **Join existing cluster:**
 ```bash
+# Automatically get your public IP address
+PUBLIC_IP=$(curl -s ifconfig.me)
+
 arcium join-cluster true \
   --keypair-path node-keypair.json \
   --node-offset $(grep "^offset = " node-config.toml | cut -d '=' -f 2 | tr -d ' ') \
   --cluster-offset <cluster_offset> \
+  --ip-address $PUBLIC_IP \
   --rpc-url https://api.devnet.solana.com
 ```
 
@@ -152,6 +161,8 @@ arcium init-cluster \
   --max-nodes <max_nodes> \
   --rpc-url https://api.devnet.solana.com
 ```
+
+> **Note:** The join-cluster command automatically retrieves your public IP address. For nodes running behind NAT or on private networks, you may need to specify your public IP manually by editing the `--ip-address` parameter.
 
 ### 5. Start the Node
 
