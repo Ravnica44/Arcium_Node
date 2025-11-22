@@ -2,6 +2,56 @@
 
 # Script to start the Arcium node with port checking before launching Docker container
 
+# Display usage information
+usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo "Start the Arcium node with automatic port checking and configuration."
+    echo ""
+    echo "This script will:"
+    echo "  - Stop any existing node container"
+    echo "  - Check for available ports"
+    echo "  - Generate identity.pem if missing"
+    echo "  - Generate node offset if not set"
+    echo "  - Start the Arcium node in Docker"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help     Show this help message"
+    echo ""
+    echo "The script automatically handles:"
+    echo "  - Port availability checking"
+    echo "  - Node identity keypair generation"
+    echo "  - Node offset generation"
+    echo "  - Docker container management"
+    echo "  - Log directory setup"
+    echo ""
+    echo "Environment variables:"
+    echo "  NODE_OFFSET    Node offset (if set, overrides config file)"
+    echo ""
+    echo "Required files (auto-generated if missing):"
+    echo "  - node-keypair.json     Node authority keypair"
+    echo "  - callback-kp.json      Callback authority keypair"
+    echo "  - identity.pem          Node identity keypair (Ed25519, PKCS#8 format)"
+    echo "  - node-config.toml      Node configuration (generated from template)"
+    echo ""
+    echo "After starting, monitor logs with: ./view-logs.sh"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
 # Function to check if a port is available
 check_port() {
     local port=$1
@@ -31,6 +81,25 @@ find_available_port() {
     echo $port
 }
 
+# Function to generate identity.pem if it doesn't exist
+generate_identity_pem() {
+    if [ ! -f "identity.pem" ]; then
+        echo "[~] Generating node identity keypair..." >&2
+        if command -v openssl &> /dev/null; then
+            openssl genpkey -algorithm ed25519 -out identity.pem
+            if [ $? -eq 0 ]; then
+                echo "[✓] Node identity keypair generated successfully" >&2
+            else
+                echo "[!] Failed to generate node identity keypair" >&2
+                exit 1
+            fi
+        else
+            echo "[!] OpenSSL not found. Please install OpenSSL to generate identity.pem" >&2
+            exit 1
+        fi
+    fi
+}
+
 # Stop and remove existing container if it exists
 # This should be done BEFORE checking port availability to free up any ports in use
 if docker ps -a --format '{{.Names}}' | grep -q '^arx-node$'; then
@@ -39,6 +108,62 @@ if docker ps -a --format '{{.Names}}' | grep -q '^arx-node$'; then
     echo "[~] Removing existing container..." >&2
     docker rm arx-node >/dev/null 2>&1
 fi
+
+# Generate node config from template
+generate_node_config() {
+    echo "[~] Generating node configuration from template..." >&2
+    
+    # Check if template exists
+    if [ ! -f "node-config.template" ]; then
+        echo "[!] node-config.template not found!" >&2
+        echo "[!] Creating default template..." >&2
+        cat > node-config.template << 'EOF'
+[node]
+offset = 0  # Will be replaced by NODE_OFFSET environment variable if set
+hardware_claim = 0  # Currently not required to specify, just use 0
+starting_epoch = 0
+ending_epoch = 9223372036854775807
+
+[network]
+address = "0.0.0.0" # Bind to all interfaces for reliability behind NAT/firewalls
+
+[solana]
+endpoint_rpc = "https://api.devnet.solana.com"  # Default Solana Devnet RPC endpoint
+endpoint_wss = "wss://api.devnet.solana.com"   # Default Solana Devnet WebSocket endpoint
+cluster = "Devnet"
+commitment.commitment = "confirmed"  # or "processed" or "finalized"
+EOF
+    fi
+    
+    # Copy template to config file
+    cp node-config.template node-config.toml
+    
+    # If NODE_OFFSET environment variable is set, update config file
+    if [ ! -z "$NODE_OFFSET" ]; then
+        echo "[~] Using NODE_OFFSET from environment variable: $NODE_OFFSET" >&2
+        sed -i "s/^offset = .*/offset = $NODE_OFFSET/" node-config.toml
+        echo "[✓] Updated node-config.toml with NODE_OFFSET value" >&2
+    else
+        # Check if offset is 0 in config and generate a new one if needed
+        OFFSET_IN_CONFIG=$(grep "^offset = " node-config.toml | cut -d '=' -f 2 | tr -d ' ')
+        if [ "$OFFSET_IN_CONFIG" = "0" ] || [ -z "$OFFSET_IN_CONFIG" ]; then
+            echo "[~] Node offset not set, generating new offset..." >&2
+            if [ -f "generate_offset.py" ]; then
+                python3 generate_offset.py
+            else
+                echo "[!] generate_offset.py not found, skipping offset generation" >&2
+            fi
+        else
+            echo "[~] Using node offset from config file: $OFFSET_IN_CONFIG" >&2
+        fi
+    fi
+}
+
+# Generate node config from template
+generate_node_config
+
+# Generate identity.pem if needed
+generate_identity_pem
 
 # Default ports for Arcium node
 DEFAULT_HTTP_PORT=8080
@@ -87,4 +212,4 @@ docker run -d \
   arcium/arx-node
 
 echo "[✓] Arcium node started successfully!" >&2
-echo "View logs with: docker logs -f arx-node" >&2
+echo "View logs with: ./view-logs.sh" >&2

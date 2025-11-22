@@ -1,5 +1,5 @@
 [node]
-offset = 6250776
+offset = 0  # Will be replaced by NODE_OFFSET environment variable if set
 hardware_claim = 0  # Currently not required to specify, just use 0
 starting_epoch = 0
 ending_epoch = 9223372036854775807

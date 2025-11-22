@@ -22,7 +22,7 @@ while [[ $# -gt 0 ]]; do
         *)
             echo "Unknown option: $1"
             echo "Usage: $0 [--history] [--no-follow]"
-            echo "  --history: Show log history instead of following logs"
+            echo "  --history: Show all log history"
             echo "  --no-follow: Show logs but don't follow (tail -n instead of tail -f)"
             exit 1
             ;;
@@ -32,13 +32,13 @@ done
 # Always check for log files first (works for both Docker and direct execution)
 if [ -d "arx-node-logs" ] && [ -n "$(ls -A arx-node-logs 2>/dev/null)" ]; then
     if [ "$SHOW_HISTORY" = true ]; then
-        echo "Showing log history from arx-node-logs directory..."
+        echo "Showing complete log history from arx-node-logs directory..."
         echo ""
-        # Show last 100 lines of all log files
+        # Show all log files
         for log_file in arx-node-logs/arx_log_*.log; do
             if [ -f "$log_file" ]; then
-                echo "==== Last 100 lines of $log_file ===="
-                tail -n 100 "$log_file"
+                echo "==== Complete history of $log_file ===="
+                cat "$log_file"
                 echo ""
             fi
         done
