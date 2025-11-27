@@ -46,9 +46,41 @@ def generate_new_wallet(output_file='user-wallet.json'):
         print(f"Please fund this wallet with Devnet SOL before running your node.")
         print(f"You can use the Solana faucet: https://faucet.solana.com/")
         
+        # Generate additional keypair files
+        generate_additional_keypairs(keypair_list)
+        
     except Exception as e:
         print(f"Error generating wallet: {e}")
         sys.exit(1)
+
+
+def generate_additional_keypairs(keypair_list):
+    """
+    Generate additional keypair files as mentioned in the README.
+    """
+    try:
+        # Create node-keypair.json
+        with open('node-keypair.json', 'w') as f:
+            json.dump(keypair_list, f)
+        print("Created node-keypair.json")
+        
+        # Create callback-kp.json
+        with open('callback-kp.json', 'w') as f:
+            json.dump(keypair_list, f)
+        print("Created callback-kp.json")
+        
+        # Create burner-wallet.json
+        with open('burner-wallet.json', 'w') as f:
+            json.dump(keypair_list, f)
+        print("Created burner-wallet.json")
+        
+        # Generate identity.pem if it doesn't exist
+        if not os.path.exists('identity.pem'):
+            # This would require openssl command, so we'll just inform the user
+            print("Please run './start-arcium-node.sh' to generate identity.pem")
+        
+    except Exception as e:
+        print(f"Error generating additional keypairs: {e}")
 
 if __name__ == "__main__":
     # Check if wallet file already exists

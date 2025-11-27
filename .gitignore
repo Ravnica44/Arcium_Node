@@ -14,3 +14,30 @@ burner-wallet.json
 callback-kp.json
 identity.pem
 node-keypair.json
+
+# Python virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.gitlab-ci.yml
+.gitlab
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

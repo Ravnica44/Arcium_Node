@@ -11,6 +11,32 @@ Before setting up your node, ensure you have the following installed:
 - Git
 - Python 3 (for wallet creation script)
 
+### System Dependencies (Ubuntu/Debian)
+
+If you're on Ubuntu or Debian, you can install the required system dependencies with:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose openssl curl git python3 python3-pip netstat ss lsof
+sudo usermod -aG docker $USER
+```
+
+After running these commands, you may need to log out and log back in for the Docker group changes to take effect.
+
+### Python Dependencies
+
+Install the required Python dependencies:
+
+```bash
+pip3 install -r requirements.txt
+```
+
+Or if you prefer to install them manually:
+
+```bash
+pip3 install base58
+```
+
 ## Initial Setup
 
 ### Setting Script Permissions
@@ -179,10 +205,12 @@ docker-compose up -d
 ```
 
 > **Note:** The start script automatically:
+> - Checks for required dependencies (docker, openssl, python3)
 > - Generates the `identity.pem` file if it's missing
 > - Generates the `node-config.toml` file from `node-config.template` if it's missing
 > - Uses the NODE_OFFSET environment variable if set, otherwise generates a new offset if the template has offset = 0
 > - Updates the node offset in the configuration file based on the NODE_OFFSET environment variable
+> - Checks for available ports using multiple tools (netstat, ss, lsof) with fallbacks
 >
 > The generated `node-config.toml` file will contain your actual node offset value.
 

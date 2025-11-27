@@ -2,6 +2,31 @@
 
 # Script to start the Arcium node with port checking before launching Docker container
 
+# Check for required dependencies
+check_dependencies() {
+    local missing_deps=()
+    
+    if ! command -v docker &> /dev/null; then
+        missing_deps+=("docker")
+    fi
+    
+    if ! command -v openssl &> /dev/null; then
+        missing_deps+=("openssl")
+    fi
+    
+    if ! command -v python3 &> /dev/null; then
+        missing_deps+=("python3")
+    fi
+    
+    if [ ${#missing_deps[@]} -ne 0 ]; then
+        echo "[!] Missing required dependencies: ${missing_deps[*]}" >&2
+        echo "[!] Please install the missing dependencies and try again" >&2
+        exit 1
+    fi
+    
+    echo "[✓] All required dependencies are installed" >&2
+}
+
 # Display usage information
 usage() {
     echo "Usage: $0 [OPTIONS]"
@@ -36,6 +61,9 @@ usage() {
     echo "After starting, monitor logs with: ./view-logs.sh"
 }
 
+# Check dependencies before proceeding
+check_dependencies
+
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -55,10 +83,33 @@ done
 # Function to check if a port is available
 check_port() {
     local port=$1
-    if netstat -tuln | grep -q ":$port "; then
-        return 1  # Port busy
+    if command -v netstat &> /dev/null; then
+        if netstat -tuln | grep -q ":$port "; then
+            return 1  # Port busy
+        else
+            return 0  # Port free
+        fi
     else
-        return 0  # Port free
+        # Fallback to ss if netstat is not available
+        if command -v ss &> /dev/null; then
+            if ss -tuln | grep -q ":$port "; then
+                return 1  # Port busy
+            else
+                return 0  # Port free
+            fi
+        else
+            # If neither netstat nor ss is available, try lsof as fallback
+            if command -v lsof &> /dev/null; then
+                if lsof -i :$port | grep -q LISTEN; then
+                    return 1  # Port busy
+                else
+                    return 0  # Port free
+                fi
+            else
+                # If no port checking tool is available, assume port is free
+                return 0
+            fi
+        fi
     fi
 }
 
